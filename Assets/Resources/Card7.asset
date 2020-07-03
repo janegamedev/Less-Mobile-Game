@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 199d28d4203745b399ded5ac47b0adc2, type: 3}
+  m_Name: Card7
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 9179575450376229851, guid: 85c2867836badee4daab2be9ac53307c, type: 3}
+  nodes:
+  - walls: 00010100
+  - walls: 00000000
+  - walls: 01000001
+  - walls: 00000000
