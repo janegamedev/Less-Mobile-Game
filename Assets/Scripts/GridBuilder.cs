@@ -14,20 +14,25 @@ namespace LessBoardGame
         [BoxGroup("Cards")]
         public Card[] cards;
         [BoxGroup("Node")]
-        public GameObject nodeObject;                // Prefab for node object
+        public GameObject tileObject;                // Prefab for tile object
         [BoxGroup("Node")] 
-        public Transform nodeRoot;
+        public Transform tilesRoot;
         [BoxGroup("Node")]
-        public float nodeSize;                        // Full size of node
+        public float tileSize;                        // Full size of node
+        [BoxGroup("Chips")] 
+        public GameObject[] chips;
+        [BoxGroup("Chips")] 
+        public Transform chipsRoot;
+        [BoxGroup("Chips")] 
+        public int chipsAmountPerPlayer;
 
-        
         private Vector2[,] _cardPositions; 
-        private NodeObject[,] _nodeHolders;
+        private TileObject[,] _nodeObjects;
 
         private void Awake()
         {
             // Initializing two arrays ona for holding cards center global positions and second one for all nodeHolders on the scene in proper grid order
-            _nodeHolders = new NodeObject[gridSize.x * 2, gridSize.y * 2];
+            _nodeObjects = new TileObject[gridSize.x * 2, gridSize.y * 2];
             _cardPositions = new Vector2[gridSize.x, gridSize.y];
 
             for (int y = 0; y < gridSize.y; y++)
@@ -37,7 +42,7 @@ namespace LessBoardGame
                     Card current = cards[Random.Range(0, cards.Length)];    // Getting random card
                     
                     //Instantiating the card and receiving its nodes
-                    Node[] nodes = InstantiateNode(current, new Vector2Int(x, y));
+                    Tile[] nodes = InstantiateNode(current, new Vector2Int(x, y));
                     
                     for (int n = 0; n < nodes.Length; n++)                 
                     {
@@ -54,19 +59,22 @@ namespace LessBoardGame
                             nodePos.x -= 1;
                         
                         // Instantiating node holder to the scene to current node position
-                        NodeObject node = Instantiate(nodeObject,
-                            new Vector3(_cardPositions[x,y].x + (nodePos.x  * nodeSize - nodeSize / 2 ), _cardPositions[x,y].y - (nodePos.y  * nodeSize - nodeSize/2), transform.position.z),
-                            Quaternion.identity, nodeRoot).GetComponent<NodeObject>();
-                        node.gameObject.name = "Node :" + (nodePos.x  + x * 2) + " : " + (nodePos.y + y * 2);
+                        TileObject tile = Instantiate(tileObject,
+                            new Vector3(_cardPositions[x,y].x + (nodePos.x  * tileSize - tileSize / 2 ), _cardPositions[x,y].y - (nodePos.y  * tileSize - tileSize/2), transform.position.z),
+                            Quaternion.identity, tilesRoot).GetComponent<TileObject>();
+                        tile.gameObject.name = "Node :" + (nodePos.x  + x * 2) + " : " + (nodePos.y + y * 2);
                        
-                        node.Init(nodes[n]);                                               // Init node holder with node data
-                        node.neighbors = new NodeObject[4];                                // Init array of neighbors (4 directions)
+                        tile.Init(nodes[n]);                                               // Init node holder with node data
+                        tile.neighbors = new TileObject[4];                                // Init array of neighbors (4 directions)
                         
-                        _nodeHolders[nodePos.x  + x * 2, nodePos.y + y * 2] = node;        // Add node to _nodesArray to its proper position on the grid
+                        _nodeObjects[nodePos.x  + x * 2, nodePos.y + y * 2] = tile;        // Add node to _nodesArray to its proper position on the grid
                     }
                 }
             }
 
+            // Placing chips on left top corner and right bottom one
+            PlaceChips();
+            
             // Setting up neighbors for all nodes
             PropagateNeighbors();
         }
@@ -82,24 +90,39 @@ namespace LessBoardGame
                 {
                     Vector2Int dir = new Vector2Int(x, y);
                     
-                    _nodeHolders[x, y].SetNeighbor(Direction.S, GetNeighbor(dir, Direction.S));
-                    _nodeHolders[x, y].SetNeighbor(Direction.E, GetNeighbor(dir, Direction.E));
+                    _nodeObjects[x, y].SetNeighbor(Direction.S, GetNeighbor(dir, Direction.S));
+                    _nodeObjects[x, y].SetNeighbor(Direction.E, GetNeighbor(dir, Direction.E));
                 }
             }
         }
 
-        private NodeObject GetNeighbor(Vector2Int pos, Direction dir)
+        private void PlaceChips()
+        {
+            for (int p = 0; p < 2; p++)
+            {
+                for (int y = 0; y < chipsAmountPerPlayer / 2; y++)
+                {
+                    for (int x = 0; x < chipsAmountPerPlayer / 2; x++)
+                    {
+                        int iX = p == 0? 0 + x: 5 - x;
+                        int iY = p == 0? 0 + y: 5 - y;
+
+                        Instantiate(chips[p],  _nodeObjects[iX,iY].GetPosition(), Quaternion.identity, chipsRoot);
+                    }
+                }
+            }
+        }
+
+        private TileObject GetNeighbor(Vector2Int pos, Direction dir)
         {
             // Getting neighbor theoretical position
             Vector2Int nPos = GetNeighborPosition(pos, dir);
             
-            Debug.Log("NOt sound yet");
             // Checking possibility to get a neighbor
             if(TryGetNeighbour(nPos) == false)
                 return null;
             
-            Debug.Log(_nodeHolders[nPos.x, nPos.y]);
-            return _nodeHolders[nPos.x, nPos.y];
+            return _nodeObjects[nPos.x, nPos.y];
         }
         
         private bool TryGetNeighbour(Vector2Int pos)
@@ -125,7 +148,7 @@ namespace LessBoardGame
             }
         }
 
-        private Node[] InstantiateNode(Card card, Vector2Int position)
+        private Tile[] InstantiateNode(Card card, Vector2Int position)
         { 
             int rotation = Random.Range(0, 4);            // Generate random rotation index
 

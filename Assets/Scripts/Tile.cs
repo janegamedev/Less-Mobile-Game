@@ -3,7 +3,7 @@
 namespace LessBoardGame
 {
    [System.Serializable]
-   public class Node
+   public class Tile
    {
       public bool[] walls;
    }

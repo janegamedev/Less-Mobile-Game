@@ -8,6 +8,6 @@ namespace LessBoardGame
     public class Card : ScriptableObject
     {
         public GameObject prefab;
-        public Node[] nodes;
+        public Tile[] nodes;
     }
 }

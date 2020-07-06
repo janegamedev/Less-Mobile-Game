@@ -7,16 +7,16 @@ namespace LessBoardGame
     {
         // If a card will be rotated we need to rotate nodes too
         // Rotation of nodes will check for every wall in each node and change its direction and node position according to rotation int
-        public static Node[] RotateNodes(this Node[] nodes, int rotate)
+        public static Tile[] RotateNodes(this Tile[] nodes, int rotate)
         {
             if (rotate == 0) return nodes;        // If rotation is 0 then card has its origin rotation and next node rotation can be skipped
 
-            Node[] copy = new Node[4]
+            Tile[] copy = new Tile[4]
             {
-                new Node(){walls = new bool[4]},
-                new Node(){walls = new bool[4]},
-                new Node(){walls = new bool[4]},
-                new Node(){walls = new bool[4]},
+                new Tile(){walls = new bool[4]},
+                new Tile(){walls = new bool[4]},
+                new Tile(){walls = new bool[4]},
+                new Tile(){walls = new bool[4]},
             };
             
             for (int n = 0; n < nodes.Length; n++)
@@ -45,18 +45,18 @@ namespace LessBoardGame
             return copy;
         }
 
-        public static NodeObject GetNeighbor(this NodeObject node, Direction dir)
+        public static TileObject GetNeighbor(this TileObject tile, Direction dir)
         {
-            return node.neighbors[(int)dir];
+            return tile.neighbors[(int)dir];
         }
 
         //Set given neighbor accordingly to its direction and propagate set neighbor to it if it is still null 
-        public static void SetNeighbor(this NodeObject node, Direction dir, NodeObject neighbor)
+        public static void SetNeighbor(this TileObject tile, Direction dir, TileObject neighbor)
         {
-            node.neighbors[(int) dir] = neighbor;
+            tile.neighbors[(int) dir] = neighbor;
             
             if(neighbor!= null && neighbor.GetNeighbor(dir.Opposite()) == null)
-                neighbor.SetNeighbor(dir.Opposite(), node);
+                neighbor.SetNeighbor(dir.Opposite(), tile);
         }
 
         private static Direction Opposite(this Direction dir)
